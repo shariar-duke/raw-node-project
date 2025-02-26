@@ -55,17 +55,6 @@ router.post('/all', async (req, res) => {
     }
 });
 
-// get inactive todos
-// Get all inactive todos
-router.get('/inactive', async (req, res) => {
-    try {
-        const data = await Todo.findInactive(); // ✅ Call the static method
-        res.status(200).json({ data });
-    } catch (err) {
-        res.status(500).json({ error: 'There was a server-side error' });
-    }
-});
-
 // Update a todo
 router.put('/:id', async (req, res) => {
     try {

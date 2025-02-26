@@ -1,56 +1,35 @@
-const http = require('http');
-const url = require('url');
-const { StringDecoder } = require('string_decoder');
+const express = require('express');
+const mongoose = require('mongoose');
+const todoHandler = require('./routeHandler/todoHandler');
 
-// Module scaffolding
-const app = {};
+// Express app initialization
+const app = express();
+app.use(express.json());
 
-// Configuration section
-app.config = {
-    port: 3000,
-};
+// Database connection with Mongoose
+mongoose
+    .connect('mongodb://localhost/todos')
+    .then(() => console.log('Database connection successful'))
+    .catch((err) => console.error('Database connection error:', err));
 
-// Create server
-app.createServer = () => {
-    const server = http.createServer(app.handleReqRes);
-    server.listen(app.config.port, () => {
-        console.log(`Listening on port ${app.config.port}`);
-    });
-};
+// Sample route
+app.get('/', (req, res) => {
+    res.send('Welcome to the Todo API');
+});
 
-// Handle Request and Response
-app.handleReqRes = (req, res) => {
-    // Parse the URL
-    const parsedUrl = url.parse(req.url, true);
-    const path = parsedUrl.pathname;
-    const trimmedPath = path.replace(/^\/+|\/+$/g, '');
-    const method = req.method.toLowerCase();
-    const queryStringObject = parsedUrl.query;
-    const decoder = new StringDecoder('utf-8');
+// Todo Route
+app.use('/todo', todoHandler);
 
-    // Log request details for debugging
-    const headerObject = req.headers;
-    console.log('Query Parameters:', queryStringObject);
-    console.log('Path:', trimmedPath);
-    console.log('Headers:', headerObject);
-    console.log('Method:', method);
+// Default error handler middleware
+function errorHandler(err, req, res, next) {
+    if (res.headersSent) {
+        return next(err); // Ensure error is forwarded correctly
+    }
 
-    // Handle incoming payload
-    let realData = '';
+    res.status(500).json({ error: err.message || 'Internal Server Error' });
+}
 
-    req.on('data', (buffer) => {
-        realData += decoder.write(buffer);
-    });
+// Register the error handler
+app.use(errorHandler);
 
-    req.on('end', () => {
-        realData += decoder.end();
-
-        // Log payload data
-        console.log('Payload:', realData);
-
-        res.end('hello world');
-    });
-};
-
-// Start the server
-app.createServer();
+app.listen(3000, () => console.log('Server running on port 3000'));

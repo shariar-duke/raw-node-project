@@ -20,6 +20,8 @@ const userSchema = new mongoose.Schema(
             enum: ['active', 'inactive'],
             default: 'active', // Default status
         },
+
+        todos: [{ type: mongoose.Types.ObjectId, ref: 'Todo' }],
     },
     { timestamps: true },
 ); // Adds createdAt and updatedAt fields

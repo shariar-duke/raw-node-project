@@ -24,4 +24,14 @@ router.post('/signup', async (req, res) => {
     }
 });
 
+// Get All Users Route
+router.get('/all', async (req, res) => {
+    try {
+        const users = await User.find({}, '-password'); // Exclude password field for security
+        res.status(200).json(users);
+    } catch (err) {
+        res.status(500).json({ error: 'There was a server-side error' });
+    }
+});
+
 module.exports = router;

@@ -3,11 +3,12 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const todoSchema = require('../schemas/todoSchema');
+const checkLogin = require('../middlewares/checkLogin');
 
 const Todo = mongoose.model('Todo', todoSchema);
 
-// Get all todos
-router.get('/', async (req, res) => {
+// Get all
+router.get('/', checkLogin, async (req, res) => {
     try {
         const todos = await Todo.find(); // Find all todos from the database
         res.status(200).json(todos); // Return the todos as a JSON response
@@ -30,9 +31,9 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create a new todo
-router.post('/', async (req, res) => {
+router.post('/', checkLogin, async (req, res) => {
     try {
-        const newTodo = new Todo(req.body);
+        const newTodo = new Todo({ ...req.body, user: req.userId });
         await newTodo.save();
 
         res.status(201).json({ message: 'Todo was inserted successfully' });
